@@ -1,0 +1,43 @@
+uint func fi(uint x, uint y)
+{
+new uint z = 15 left 2;
+new bool a = false;
+new bool b = true;
+print b;
+new uint f = 8x75;
+ret y;
+
+}
+bool func asdf(uint y)
+{
+
+y = y left 5;
+new uint yy = 8x47;
+print y;
+ret true; 
+}
+
+
+
+main
+{
+
+new str date = Date(); 
+print date;
+new str time = Time();
+print time;
+new uint xxx;
+new uint yyy;
+yyy = 25;
+xxx = 25 + 45;
+print xxx;
+xxx = 25 * 3;
+print xxx;
+new uint result = ((fi(xxx, yyy) + 1) right 2);
+new uint i = 8x66;
+print i;
+new str text = 'hello world';
+print text;
+new bool check = asdf(yyy);
+print check;
+}

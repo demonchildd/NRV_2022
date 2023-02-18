@@ -1,0 +1,12 @@
+uint func sum(uint a, uint b)
+{
+new uint c = a + b;
+print c;
+ret 0;
+}
+
+main
+{
+new uint a = 8 / sum(9, 5);
+print a;
+}

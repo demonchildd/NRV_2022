@@ -1,0 +1,35 @@
+uint func sum(uint a, uint b)
+{
+new uint c = a + b; 
+c = c left 1;
+ret c;
+}
+
+bool func check()
+{
+new uint x = 1;
+cycle(4)
+{
+x = x +  2;
+print x;
+}
+ret true;
+}
+
+str func news()
+{
+ret 'NRV-2022';
+}
+
+main
+{
+new uint result = sum(5,9) right 1;
+print result;
+new str date = Date();
+print date;
+new str time = Time();
+print time;
+new bool d = check();
+new str s = news();
+print s;
+}

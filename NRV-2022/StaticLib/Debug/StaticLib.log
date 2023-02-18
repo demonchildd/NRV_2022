@@ -1,0 +1,4 @@
+﻿  StaticLib.cpp
+D:\Курс2\Курсовая\NRV-2022\StaticLib\StaticLib.cpp(19): warning C4172: возвращение адреса локальной или временной переменной : buf
+D:\Курс2\Курсовая\NRV-2022\StaticLib\StaticLib.cpp(11): warning C4172: возвращение адреса локальной или временной переменной : buf
+  StaticLib.vcxproj -> D:\Курс2\Курсовая\NRV-2022\Debug\StaticLib.lib

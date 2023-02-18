@@ -1,0 +1,314 @@
+Microsoft (R) Macro Assembler Version 14.34.31933.0	    12/21/22 11:01:20
+asm.asm							     Page 1 - 1
+
+
+				.586
+				.model flat, stdcall
+				includelib libucrt.lib
+				includelib kernel32.lib
+				includelib ../Debug/StaticLib.lib
+				ExitProcess PROTO :DWORD
+
+				OutputInt PROTO : DWORD
+				OutputStr PROTO : DWORD
+				EXTRN Date: proc
+				EXTRN Time: proc
+
+				.stack 4096
+
+ 00000000			.CONST
+ 00000000 C2 FB F5 EE E4		overflownum BYTE "Выход за пределы значения", 0
+	   20 E7 E0 20 EF
+	   F0 E5 E4 E5 EB
+	   FB 20 E7 ED E0
+	   F7 E5 ED E8 FF
+	   00
+ 0000001A CE F2 F0 E8 F6		neguint BYTE "Отрицательное число", 0
+	   E0 F2 E5 EB FC
+	   ED EE E5 20 F7
+	   E8 F1 EB EE 00
+ 0000002E C4 E5 EB E5 ED		zerodel BYTE "Деление на ноль", 0
+	   E8 E5 20 ED E0
+	   20 ED EE EB FC
+	   00
+ 0000003E 00000001			L1 DWORD 1
+ 00000042 00000004			L2 DWORD 4
+ 00000046 00000002			L3 DWORD 2
+ 0000004A 00000001			L4 DWORD 1
+ 0000004E 4E 52 56 20 2D		L5 BYTE "NRV - 2022", 0
+	   20 32 30 32 32
+	   00
+ 00000059 00000005			L6 DWORD 5
+ 0000005D 00000009			L7 DWORD 9
+
+ 00000000			.data
+ 00000000 00000000			count DWORD 0
+ 00000004 00000000			sum_c DWORD 0
+ 00000008 00000000			check_x DWORD 0
+ 0000000C 00000000			main_result DWORD 0
+ 00000010 00000000			main_date DWORD ?
+ 00000014 00000000			main_time DWORD ?
+ 00000018 00000000			main_d DWORD 0
+ 0000001C 00000000			main_s DWORD ?
+
+ 00000000			.code
+
+ 00000000			sum PROC sum_a : DWORD, sum_b : DWORD
+ 00000003  FF 75 08			push sum_a
+ 00000006  FF 75 0C			push sum_b
+ 00000009  5B				pop ebx
+ 0000000A  58				pop eax
+ 0000000B  2B C3			sub eax, ebx
+ 0000000D  3D 000000FF			cmp eax, 255
+ 00000012  7F 3E		jg OVERFLOW
+ 00000014  83 F8 00			cmp eax, 0
+ 00000017  7C 4A		jl NEGNUM
+ 00000019  50				push eax
+ 0000001A  8F 05 00000004 R		pop sum_c
+ 00000020  FF 35 00000004 R		push sum_c
+ 00000026  FF 35 0000003E R		push L1
+ 0000002C  59				pop ecx
+ 0000002D			CYCLE0:
+ 0000002D  58				pop eax
+ 0000002E  D1 E0			shl eax, 1
+ 00000030  3D 000000FF			cmp eax, 255
+ 00000035  7F 1B		jg OVERFLOW
+ 00000037  83 F8 00			cmp eax, 0
+ 0000003A  7C 27		jl NEGNUM
+ 0000003C  50				push eax
+ 0000003D  E2 EE			loop CYCLE0
+ 0000003F  8F 05 00000004 R		pop sum_c
+ 00000045  FF 35 00000004 R		push sum_c
+ 0000004B  EB 00			jmp local0
+ 0000004D			local0:
+ 0000004D  58				pop eax
+					ret
+ 00000052			OVERFLOW:
+ 00000052  68 00000000 R		push offset overflownum
+ 00000057  E8 00000000 E		call OutputStr
+ 0000005C  6A 00			push 0
+ 0000005E  E8 00000000 E		call ExitProcess
+ 00000063			NEGNUM:
+ 00000063  68 0000001A R		push offset neguint
+ 00000068  E8 00000000 E		call OutputStr
+ 0000006D  6A 00			push 0
+ 0000006F  E8 00000000 E		call ExitProcess
+ 00000074			DELZERO:
+ 00000074  68 0000002E R		push offset zerodel
+ 00000079  E8 00000000 E		call OutputStr
+ 0000007E  6A 00			push 0
+ 00000080  E8 00000000 E		call ExitProcess
+ 00000085			sum ENDP
+
+ 00000085			check PROC 
+ 00000085  FF 35 0000003E R		push L1
+ 0000008B  8F 05 00000008 R		pop check_x
+ 00000091  FF 35 00000042 R		push L2
+ 00000097  8F 05 00000000 R		pop count
+ 0000009D  83 05 00000000 R		add count, 1
+	   01
+ 000000A4  8B 0D 00000000 R		mov ecx, count
+ 000000AA			CYCLE100:
+ 000000AA  FF 35 00000008 R		push check_x
+ 000000B0  FF 35 00000046 R		push L3
+ 000000B6  58				pop eax
+ 000000B7  5B				pop ebx
+ 000000B8  03 C3			add eax, ebx
+ 000000BA  3D 000000FF			cmp eax, 255
+ 000000BF  7F 2F		jg OVERFLOW
+ 000000C1  83 F8 00			cmp eax, 0
+ 000000C4  7C 3B		jl NEGNUM
+ 000000C6  50				push eax
+ 000000C7  8F 05 00000008 R		pop check_x
+ 000000CD  FF 35 00000008 R		push check_x
+ 000000D3  E8 00000000 E		call OutputInt
+ 000000D8  FF 0D 00000000 R		dec count
+ 000000DE  8B 0D 00000000 R		mov ecx, count
+ 000000E4  E2 C4		loop CYCLE100
+ 000000E6  FF 35 0000004A R		push L4
+ 000000EC  EB 00			jmp local1
+ 000000EE			local1:
+ 000000EE  58				pop eax
+ 000000EF  C3				ret
+ 000000F0			OVERFLOW:
+ 000000F0  68 00000000 R		push offset overflownum
+ 000000F5  E8 00000000 E		call OutputStr
+ 000000FA  6A 00			push 0
+ 000000FC  E8 00000000 E		call ExitProcess
+ 00000101			NEGNUM:
+ 00000101  68 0000001A R		push offset neguint
+ 00000106  E8 00000000 E		call OutputStr
+ 0000010B			DELZERO:
+ 0000010B  68 0000002E R		push offset zerodel
+ 00000110  E8 00000000 E		call OutputStr
+ 00000115  6A 00			push 0
+ 00000117  E8 00000000 E		call ExitProcess
+ 0000011C			check ENDP
+
+ 0000011C			news PROC 
+ 0000011C  68 0000004E R		push offset L5
+ 00000121  EB 00			jmp local2
+ 00000123			local2:
+ 00000123  58				pop eax
+ 00000124  C3				ret
+ 00000125			OVERFLOW:
+ 00000125  68 00000000 R		push offset overflownum
+ 0000012A  E8 00000000 E		call OutputStr
+ 0000012F  6A 00			push 0
+ 00000131  E8 00000000 E		call ExitProcess
+ 00000136			NEGNUM:
+ 00000136  68 0000001A R		push offset neguint
+ 0000013B  E8 00000000 E		call OutputStr
+ 00000140			DELZERO:
+ 00000140  68 0000002E R		push offset zerodel
+ 00000145  E8 00000000 E		call OutputStr
+ 0000014A  6A 00			push 0
+ 0000014C  E8 00000000 E		call ExitProcess
+ 00000151			news ENDP
+
+ 00000151			main PROC
+ 00000151  FF 35 00000059 R		push L6
+ 00000157  FF 35 0000005D R		push L7
+ 0000015D  5A				pop edx
+ 0000015E  5A				pop edx
+ 0000015F  FF 35 0000005D R		push L7
+ 00000165  FF 35 00000059 R		push L6
+ 0000016B  E8 FFFFFE90			call sum
+ 00000170  50				push eax
+ 00000171  FF 35 0000003E R		push L1
+ 00000177  59				pop ecx
+ 00000178			CYCLE1:
+ 00000178  58				pop eax
+ 00000179  D1 E8			shr eax, 1
+ 0000017B  3D 000000FF			cmp eax, 255
+ 00000180  7F 71		jg OVERFLOW
+ 00000182  83 F8 00			cmp eax, 0
+ 00000185  7C 7D		jl NEGNUM
+ 00000187  50				push eax
+ 00000188  E2 EE			loop CYCLE1
+ 0000018A  8F 05 0000000C R		pop main_result
+ 00000190  FF 35 0000000C R		push main_result
+ 00000196  E8 00000000 E		call OutputInt
+ 0000019B  E8 00000000 E		call Date
+ 000001A0  50				push eax
+ 000001A1  8F 05 00000010 R		pop main_date
+ 000001A7  FF 35 00000010 R		push main_date
+ 000001AD  E8 00000000 E		call OutputStr
+ 000001B2  E8 00000000 E		call Time
+ 000001B7  50				push eax
+ 000001B8  8F 05 00000014 R		pop main_time
+ 000001BE  FF 35 00000014 R		push main_time
+ 000001C4  E8 00000000 E		call OutputStr
+ 000001C9  E8 FFFFFEB7			call check
+ 000001CE  50				push eax
+ 000001CF  8F 05 00000018 R		pop main_d
+ 000001D5  E8 FFFFFF42			call news
+ 000001DA  50				push eax
+ 000001DB  8F 05 0000001C R		pop main_s
+ 000001E1  FF 35 0000001C R		push main_s
+ 000001E7  E8 00000000 E		call OutputStr
+ 000001EC			OutAsm:
+ 000001EC  6A 00			push 0
+ 000001EE  E8 00000000 E		call ExitProcess
+ 000001F3			OVERFLOW:
+ 000001F3  68 00000000 R		push offset overflownum
+ 000001F8  E8 00000000 E		call OutputStr
+ 000001FD  6A 00			push 0
+ 000001FF  E8 00000000 E		call ExitProcess
+ 00000204			NEGNUM:
+ 00000204  68 0000001A R		push offset neguint
+ 00000209  E8 00000000 E		call OutputStr
+ 0000020E			DELZERO:
+ 0000020E  68 0000002E R		push offset zerodel
+ 00000213  E8 00000000 E		call OutputStr
+ 00000218  6A 00			push 0
+ 0000021A  E8 00000000 E		call ExitProcess
+ 0000021F			main ENDP
+				end main
+Microsoft (R) Macro Assembler Version 14.34.31933.0	    12/21/22 11:01:20
+asm.asm							     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+CONST  . . . . . . . . . . . . .	32 Bit	 00000061 Para	  Public  'CONST'	 ReadOnly
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000020 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000021F Para	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+OutputInt  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+OutputStr  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+check  . . . . . . . . . . . . .	P Near	 00000085 _TEXT	Length= 00000097 Public STDCALL
+  CYCLE100 . . . . . . . . . . .	L Near	 000000AA _TEXT	
+  local1 . . . . . . . . . . . .	L Near	 000000EE _TEXT	
+  OVERFLOW . . . . . . . . . . .	L Near	 000000F0 _TEXT	
+  NEGNUM . . . . . . . . . . . .	L Near	 00000101 _TEXT	
+  DELZERO  . . . . . . . . . . .	L Near	 0000010B _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000151 _TEXT	Length= 000000CE Public STDCALL
+  CYCLE1 . . . . . . . . . . . .	L Near	 00000178 _TEXT	
+  OutAsm . . . . . . . . . . . .	L Near	 000001EC _TEXT	
+  OVERFLOW . . . . . . . . . . .	L Near	 000001F3 _TEXT	
+  NEGNUM . . . . . . . . . . . .	L Near	 00000204 _TEXT	
+  DELZERO  . . . . . . . . . . .	L Near	 0000020E _TEXT	
+news . . . . . . . . . . . . . .	P Near	 0000011C _TEXT	Length= 00000035 Public STDCALL
+  local2 . . . . . . . . . . . .	L Near	 00000123 _TEXT	
+  OVERFLOW . . . . . . . . . . .	L Near	 00000125 _TEXT	
+  NEGNUM . . . . . . . . . . . .	L Near	 00000136 _TEXT	
+  DELZERO  . . . . . . . . . . .	L Near	 00000140 _TEXT	
+sum  . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000085 Public STDCALL
+  sum_a  . . . . . . . . . . . .	DWord	 bp + 00000008
+  sum_b  . . . . . . . . . . . .	DWord	 bp + 0000000C
+  CYCLE0 . . . . . . . . . . . .	L Near	 0000002D _TEXT	
+  local0 . . . . . . . . . . . .	L Near	 0000004D _TEXT	
+  OVERFLOW . . . . . . . . . . .	L Near	 00000052 _TEXT	
+  NEGNUM . . . . . . . . . . . .	L Near	 00000063 _TEXT	
+  DELZERO  . . . . . . . . . . .	L Near	 00000074 _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+Date . . . . . . . . . . . . . .	L Near	 00000000 FLAT	External STDCALL
+L1 . . . . . . . . . . . . . . .	DWord	 0000003E CONST	
+L2 . . . . . . . . . . . . . . .	DWord	 00000042 CONST	
+L3 . . . . . . . . . . . . . . .	DWord	 00000046 CONST	
+L4 . . . . . . . . . . . . . . .	DWord	 0000004A CONST	
+L5 . . . . . . . . . . . . . . .	Byte	 0000004E CONST	
+L6 . . . . . . . . . . . . . . .	DWord	 00000059 CONST	
+L7 . . . . . . . . . . . . . . .	DWord	 0000005D CONST	
+Time . . . . . . . . . . . . . .	L Near	 00000000 FLAT	External STDCALL
+check_x  . . . . . . . . . . . .	DWord	 00000008 _DATA	
+count  . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+main_date  . . . . . . . . . . .	DWord	 00000010 _DATA	
+main_d . . . . . . . . . . . . .	DWord	 00000018 _DATA	
+main_result  . . . . . . . . . .	DWord	 0000000C _DATA	
+main_s . . . . . . . . . . . . .	DWord	 0000001C _DATA	
+main_time  . . . . . . . . . . .	DWord	 00000014 _DATA	
+neguint  . . . . . . . . . . . .	Byte	 0000001A CONST	
+overflownum  . . . . . . . . . .	Byte	 00000000 CONST	
+sum_c  . . . . . . . . . . . . .	DWord	 00000004 _DATA	
+zerodel  . . . . . . . . . . . .	Byte	 0000002E CONST	
+
+	   0 Warnings
+	   0 Errors
